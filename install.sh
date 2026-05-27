@@ -72,6 +72,15 @@ fi
 PY_VERSION=$("$PYTHON" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 echo "Python $PY_VERSION — OK"
 
+# ── 1b. Ensure venv module is available (Linux/WSL only) ─────────────────────
+if [[ "$OSTYPE" != "darwin"* ]]; then
+    if ! "$PYTHON" -c "import venv" &>/dev/null 2>&1; then
+        echo "Installing python${PY_VERSION}-venv..."
+        sudo apt-get install -y "python${PY_VERSION}-venv" 2>/dev/null || \
+        sudo apt-get install -y python3-venv 2>/dev/null || true
+    fi
+fi
+
 # ── 2. Create virtualenv at ~/.koda/venv ─────────────────────────────────────
 KODA_DIR="$HOME/.koda"
 VENV_DIR="$KODA_DIR/venv"
