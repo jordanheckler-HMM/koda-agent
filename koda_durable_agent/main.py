@@ -54,11 +54,58 @@ def render_banner() -> None:
 """)
 
 
+def run_update() -> None:
+    """Pull latest from GitHub and reinstall the package."""
+    import subprocess
+
+    # The repo root is always two levels up from this file
+    repo_dir = Path(__file__).resolve().parent.parent
+
+    print(f"\n  Updating Koda from {repo_dir}...\n")
+
+    # Check it's actually a git repo
+    if not (repo_dir / ".git").exists():
+        print("  ✗  Not a git repo — can't auto-update.")
+        print(f"     Re-run: bash {repo_dir}/install.sh")
+        return
+
+    # Pull latest
+    result = subprocess.run(["git", "pull"], cwd=repo_dir, capture_output=True, text=True)
+    if result.returncode != 0:
+        print(f"  ✗  git pull failed:\n{result.stderr.strip()}")
+        return
+
+    output = result.stdout.strip()
+    if "Already up to date" in output:
+        print("  ✓  Already up to date.")
+        return
+
+    print(f"  {output}\n")
+
+    # Reinstall so any new deps are picked up
+    venv_pip = Path.home() / ".koda" / "venv" / "bin" / "pip"
+    pip = str(venv_pip) if venv_pip.exists() else "pip"
+    result = subprocess.run(
+        [pip, "install", "--quiet", "-e", str(repo_dir)],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        print(f"  ✗  pip install failed:\n{result.stderr.strip()}")
+        return
+
+    print("  ✓  Koda updated. Restart to apply changes.\n")
+
+
 def main() -> None:
-    # ── koda setup ────────────────────────────────────────────────────────────
-    if len(sys.argv) > 1 and sys.argv[1] == "setup":
+    cmd = sys.argv[1] if len(sys.argv) > 1 else ""
+
+    if cmd == "setup":
         from koda_durable_agent.setup_wizard import run_setup
         run_setup()
+        return
+
+    if cmd == "update":
+        run_update()
         return
 
     # ── Normal TUI boot ───────────────────────────────────────────────────────
