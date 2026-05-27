@@ -93,7 +93,7 @@ def load_instructions() -> str:
             logger.warning(f"Failed to read UserProfile.md: {e}")
 
     if not instructions:
-        name = getattr(settings, "USER_NAME", None) or "Jordan"
+        name = getattr(settings, "USER_NAME", None) or "you"
         instructions.append(
             f"You are Koda, {name}'s personal AI agent and operator. "
             "You are sharp, warm, and action-oriented. You help with scheduling, "
@@ -142,7 +142,7 @@ def load_instructions() -> str:
         "Schedule formats: 'daily@08:00', 'weekly@mon@09:00', or minutes as a number.\n"
         "Delivery: 'telegram' (phone), 'chat' (TUI), 'background' (log only).\n"
         "Default model for cron jobs: openai/gpt-oss-120b:free\n"
-        "When Jordan asks to schedule something, call create_koda_cron_job immediately."
+        "When asked to schedule something, call create_koda_cron_job immediately."
     )
 
     instructions.append("\n### CUSTOM SKILLS (SLASH COMMANDS):")

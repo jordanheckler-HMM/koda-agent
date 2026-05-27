@@ -40,7 +40,7 @@ def list_reminders(list_name: str = "Reminders") -> str:
     """List all incomplete reminders in a named Reminders list.
 
     Args:
-        list_name: Name of the list to read. Common values: 'Reminders', 'Groceries', 'Orion'.
+        list_name: Name of the list to read. Common values: 'Reminders', 'Groceries', 'Work'.
     """
     if not _IS_MACOS:
         return "This tool requires macOS."

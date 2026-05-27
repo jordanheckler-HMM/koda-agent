@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from pathlib import Path
 import asyncio
 import logging
 import httpx
@@ -20,9 +21,9 @@ bootstrap_pythonpath()
 from koda_durable_agent.config import settings
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("orion.gateway")
+logger = logging.getLogger("koda.gateway")
 
-DB_PATH = os.path.join(settings.BASE_DIR, "orion_gateway.db")
+DB_PATH = str(Path.home() / ".koda" / "koda_gateway.db")
 
 def init_db():
     """Initializes SQLite tables for resilient message queues."""
@@ -308,7 +309,7 @@ async def run_inbound_polling(message_handler=None):
                     if not text and not voice:
                         continue
 
-                    # Resilient allowlist check (OpenClaw style)
+                    # Resilient allowlist check
                     is_owner = (settings.TELEGRAM_CHAT_ID and chat_id == str(settings.TELEGRAM_CHAT_ID))
                     is_allowed = chat_id in settings.TELEGRAM_ALLOWED_USERS
 

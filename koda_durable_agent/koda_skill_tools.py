@@ -90,7 +90,7 @@ def create_koda_skill(command: str, description: str, prompt: str) -> str:
         f"Description: {description}\n"
         f"Prompt: {prompt}\n"
         f"ID: {skill['id']}\n\n"
-        f"Jordan can now type {command} in the TUI to run this. It will appear in the command palette on next session start."
+        f"You can now type {command} in the TUI to run this. It will appear in the command palette on next session start."
     )
 
 

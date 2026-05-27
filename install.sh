@@ -83,7 +83,7 @@ TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
 TELEGRAM_CHAT_ID=your_telegram_chat_id_here
 
 # Your name (used in agent prompts)
-USER_NAME=Jordan
+USER_NAME=
 EOF
     echo "Template .env written to $ENV_FILE"
 else

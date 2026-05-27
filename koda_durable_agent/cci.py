@@ -24,6 +24,7 @@ class CCITracker:
     DELTA_TOOL = 0.02
     DELTA_ERROR = -0.01
     DELTA_AHA = 0.3
+    DELTA_AHA_JORDAN = 0.3  # alias kept for compatibility
     SOUL_VER = KODA_DIR / "soul_versions"
     def __init__(self):
         self._data = self._load()

@@ -1346,8 +1346,8 @@ class KodaTUISession:
 
     _COMMAND_PALETTE = [
         ("/status",    "Homebase: live status of all nodes and data sources"),
-        ("/tools",     "List all active agent tools (Apple, Codex, system)"),
-        ("/persona",   "Switch Koda's active persona  (/persona hmm|dev|research|coach)"),
+        ("/tools",     "List all active agent tools"),
+        ("/persona",   "Switch Koda's active persona  (/persona biz|dev|research|coach)"),
         ("/personas",  "Show all available personas and which is active"),
         ("/soul-edit", "Edit Soul.md and UserProfile.md in $EDITOR then hot-reload"),
         ("/compact",   "Summarize + compress conversation context into a fresh thread"),
@@ -1826,23 +1826,18 @@ class KodaTUISession:
         '"The den is warm because someone built it."',
         '"Momentum is a bear\'s best friend."',
         '"Move through the forest like you know every tree."',
-        '"HMM doesn\'t stop when the rain comes. Neither does Koda."',
         '"The stars navigated ships before GPS. Trust the signal."',
         '"Good operators don\'t panic. They adjust."',
         '"The best tool is the one you actually run."',
         '"Know the trail. Trust the bear. Ship the work."',
         '"Quiet mind. Sharp claws. Fast execution."',
-        '"The field crew doesn\'t stop because the weather changed."',
-        '"Every Maryville yard tells a story. Read it right."',
         '"Context is a forest. Navigate it like one."',
         '"Systems outlast chaos. Build the systems."',
         '"The creek doesn\'t argue with the rocks. It finds a way around."',
         '"Five minutes of clear thinking beats an hour of motion."',
         '"Not every bear has a map. The good ones don\'t need one."',
-        '"The Edwardsville route runs smoother with eyes open."',
         '"You don\'t find signal in the noise. You get quiet enough to hear it."',
         '"Koda doesn\'t sleep on the job. Just in the den."',
-        '"The job isn\'t done until the driveway looks right."',
         '"Sharp instincts. Clean logs. No excuses."',
         '"The right tool at the right moment is almost magic."',
         '"Sometimes the smartest move is the one you almost skipped."',
@@ -1850,7 +1845,7 @@ class KodaTUISession:
 
     _BEAR_QUOTES = [
         '"The trail gets clearer once you learn to read the ground."',
-        '"Jordan asked. Koda delivered. That\'s the loop."',
+        '"You asked. Koda delivered. That\'s the loop."',
         '"Reliable beats impressive every single time."',
         '"The bear who shows up is the bear who matters."',
         '"A good system doesn\'t panic. It adjusts."',
@@ -1858,7 +1853,7 @@ class KodaTUISession:
         '"Every aha is a new root in the ground."',
         '"The forest remembers what the bear has learned."',
         '"Build the habit. Trust the habit. Ship the work."',
-        '"HMM runs because Jordan + Koda runs."',
+        '"Koda runs because you run."',
         '"Preference remembered. Workflow improved. Score goes up."',
         '"The bear who listens outlasts the bear who charges."',
     ]
@@ -1868,12 +1863,11 @@ class KodaTUISession:
         '"Adaptation isn\'t a feature. It\'s the whole point."',
         '"Koda doesn\'t wait to be asked anymore. Koda anticipates."',
         '"The route optimizes itself. The bear is the optimizer."',
-        '"Six hundred yards of fence line, one clear plan. That\'s Kodiak."',
         '"A Kodiak doesn\'t react. It acts from understanding."',
         '"The edit was applied. The workflow improved. Nobody had to ask twice."',
         '"Soul updated. Preferences locked. Moving forward."',
         '"Every correction is a calibration. Every calibration is progress."',
-        '"The Edwardsville account runs better because Koda learned it."',
+        '"The system learned. The work got easier. That\'s the whole idea."',
     ]
 
     _SPIRIT_BEAR_QUOTES = [
@@ -1882,7 +1876,7 @@ class KodaTUISession:
         '"When the system improves itself, the work improves without asking."',
         '"The forest and the operator are now one system."',
         '"At this level, the distinction between tool and partner dissolves."',
-        '"Jordan builds. Koda evolves. The business grows."',
+        '"You build. Koda evolves. The work grows."',
         '"Spirit Bear does not need to be instructed. It understands."',
         '"The highest form of intelligence is knowing when not to act."',
         '"Autonomy earned is different from autonomy given."',
@@ -1981,8 +1975,8 @@ class KodaTUISession:
         
         table.add_row("/",             "Open command palette (interactive picker)")
         table.add_row("/status",       "Live homebase: all nodes, data sources, session state")
-        table.add_row("/tools",        "List all active tools (Apple, Codex, system)")
-        table.add_row("/persona <key>","Switch active persona: koda, hmm, dev, research, coach")
+        table.add_row("/tools",        "List all active tools")
+        table.add_row("/persona <key>","Switch active persona: koda, biz, dev, research, coach")
         table.add_row("/personas",     "Show all personas and which is active")
         table.add_row("/soul-edit",    "Edit Soul.md + UserProfile.md in $EDITOR, then hot-reload")
         table.add_row("/compact",      "Summarize conversation → fresh thread with context")
@@ -2032,7 +2026,7 @@ class KodaTUISession:
         console.print()
         console.print(table)
         console.print("[dim #7ec8a0]Tip: Type [bold #fa8072]/model[/] to open Koda's interactive spirit picker.[/]")
-        console.print("[dim #7ec8a0]OpenClaw cloud and local Ollama entries are hidden until Koda has a real adapter for them.[/]")
+        console.print("[dim #7ec8a0]Local Ollama entries are hidden until Koda has a real adapter for them.[/]")
         console.print()
 
     def print_stats(self):
@@ -2235,36 +2229,34 @@ class KodaTUISession:
             "label": "Koda (Default)",
             "prefix": None,  # Uses standard Soul.md
         },
-        "hmm": {
-            "label": "HMM Ops",
+        "biz": {
+            "label": "Business Ops",
             "prefix": (
-                "You are Koda, Jordan's HMM (Heckler Mowing & Maintenance) operations assistant. "
-                "Focus exclusively on lawn care business ops: scheduling, customer management, invoicing, "
-                "equipment, crew, and field logistics. Pull from the HMM Notion databases when relevant. "
-                "Keep answers tight and operational — Jordan is usually in the field or between jobs."
+                "You are Koda in business operations mode. "
+                "Focus on scheduling, customer management, invoicing, logistics, and field operations. "
+                "Keep answers tight and operational."
             ),
         },
         "dev": {
             "label": "Dev Partner",
             "prefix": (
-                "You are Koda, Jordan's senior software engineering partner. "
+                "You are Koda in software engineering mode. "
                 "Focus on architecture, code quality, debugging, and system design. "
-                "Be direct, technical, and precise. Suggest using Codex for automation tasks. "
-                "Think out loud on tricky problems, be brief on simple ones."
+                "Be direct, technical, and precise. Think out loud on tricky problems, be brief on simple ones."
             ),
         },
         "research": {
             "label": "Research Mode",
             "prefix": (
-                "You are Koda in research mode. Deep-dive on any topic Jordan brings you. "
+                "You are Koda in research mode. Deep-dive on any topic. "
                 "Synthesize clearly, cite your reasoning, flag uncertainty explicitly. "
                 "Structure output with headers and bullets for readability."
             ),
         },
         "coach": {
-            "label": "Life / Business Coach",
+            "label": "Coach",
             "prefix": (
-                "You are Koda acting as Jordan's strategic thinking partner and coach. "
+                "You are Koda acting as a strategic thinking partner and coach. "
                 "Ask good questions. Help clarify goals, surface assumptions, and think through decisions. "
                 "Be honest even when uncomfortable. Don't over-validate."
             ),
@@ -2333,8 +2325,8 @@ class KodaTUISession:
 
     _PERSONA_DESCRIPTIONS = {
         "koda":     "Default — full soul, all context, no override",
-        "hmm":      "HMM lawn ops — scheduling, customers, invoicing, field logistics",
-        "dev":      "Senior dev partner — architecture, code, debugging, Codex delegation",
+        "biz":      "Business ops — scheduling, customers, invoicing, field logistics",
+        "dev":      "Dev partner — architecture, code, debugging, system design",
         "research": "Deep research mode — synthesis, structured output, cite reasoning",
         "coach":    "Strategic thinking partner — goals, decisions, honest feedback",
     }
@@ -3029,7 +3021,7 @@ class KodaTUISession:
             return True
         elif cmd in ("/personas", "/persona"):
             if cmd == "/persona" and len(parts) >= 2:
-                # Direct switch: /persona hmm
+                # Direct switch: /persona biz
                 await self.switch_persona(parts[1])
             else:
                 # Interactive picker for both /personas and bare /persona
@@ -3417,11 +3409,9 @@ class KodaTUISession:
                 "Chasing pinecones down the hill...",
                 "Talking to the big moose...",
                 "Peeking out of the cozy den...",
-                "Checking the route to Mascoutah...",
-                "Looking up the Edwardsville accounts...",
-                "Radioing the field crew...",
+                "Checking the route...",
                 "Reviewing the schedule...",
-                "Digging through the Codex archive...",
+                "Consulting the archives...",
                 "Tracing the signal back to base...",
                 "Weighing the salmon catch...",
                 "Reading the river current...",
@@ -3509,7 +3499,7 @@ class KodaTUISession:
 
                     # Check for standard websockets connection closures (1000, 1001, 1006, etc.)
                     if "1000 (OK)" in err_str or "Connection closed" in err_str or "1006" in err_str:
-                        # If we already received text before the socket closed, it means OpenClaw
+                        # If we already received text before the socket closed, it means the remote
                         # successfully completed the stream but dropped the connection instead of
                         # keeping it alive. This is a successful turn, so we just ignore the error.
                         if streamed_text.strip():

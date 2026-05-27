@@ -1,7 +1,7 @@
 """
 Koda self-management tools — cron jobs, session state, etc.
 These are registered as agent tools so Koda can manage its own scheduler
-directly rather than handing commands back to Jordan.
+directly rather than handing commands back to the user.
 """
 import logging
 from typing import Optional
@@ -12,7 +12,7 @@ logger = logging.getLogger("koda.koda_tools")
 def list_koda_cron_jobs() -> str:
     """List all of Koda's scheduled cron jobs with their status and next run time.
 
-    Call this whenever Jordan asks what recurring tasks are set up, whether a
+    Call this whenever the user asks what recurring tasks are set up, whether a
     cron job exists, or what's scheduled. Always check here before saying you
     don't have any jobs set up.
 
@@ -42,7 +42,7 @@ def create_koda_cron_job(
     delivery: str = "background",
     model: str = "",
 ) -> str:
-    """Create a new Koda scheduled cron job. Use this directly — do not give Jordan a /cron add command to run.
+    """Create a new Koda scheduled cron job. Use this directly — do not give the user a /cron add command to run.
 
     Args:
         name: Short descriptive name (e.g. 'Daily Storage Scan').
