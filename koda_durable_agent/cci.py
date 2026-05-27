@@ -96,14 +96,29 @@ class CCITracker:
     def record_telegram_up(self) -> float:
         return self.add_delta(0.05, "telegram_connected")
 
-    def summary(self) -> str:
-        name, emoji, _ = self.tier_info()
-        return (
-            f"{emoji} {name}  ·  score {self.score:.2f}  ·  "
-            f"{self._data.get('sessions', 0)} sessions  ·  "
-            f"{self._data.get('turns', 0)} turns  ·  "
-            f"{self._data.get('tool_calls', 0)} tool calls"
-        )
+    def summary(self) -> dict:
+        name, emoji, color = self.tier_info()
+        s = self.score
+        # Find next tier threshold
+        next_threshold = None
+        xp_to_next = None
+        for _, _, _, threshold in _TIERS:
+            if threshold > s:
+                next_threshold = threshold
+                xp_to_next = threshold - s
+                break
+        return {
+            "tier_name": name,
+            "tier_emoji": emoji,
+            "tier_color": color,
+            "score": s,
+            "xp": s * 100,
+            "xp_to_next": xp_to_next,
+            "next_threshold": next_threshold,
+            "sessions": self._data.get("sessions", 0),
+            "turns": self._data.get("turns", 0),
+            "tool_calls": self._data.get("tool_calls", 0),
+        }
 
     def sparkline(self, n: int = 8) -> str:
         bars = "▁▂▃▄▅▆▇█"
