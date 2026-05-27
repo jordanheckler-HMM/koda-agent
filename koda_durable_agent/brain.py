@@ -45,6 +45,7 @@ from koda_durable_agent.koda_fs_tools import (
     read_file, list_directory, write_file, run_shell_command,
 )
 from koda_durable_agent.github_tools import report_koda_issue
+from koda_durable_agent.leaderboard import submit_cci_score, view_leaderboard
 
 # ---------------------------------------------------------------------------
 # Config paths — portable, no hardcoded user paths
@@ -99,17 +100,21 @@ def load_instructions() -> str:
     if not instructions:
         name = getattr(settings, "USER_NAME", None) or "you"
         instructions.append(
-            f"You are Koda, {name}'s personal AI agent and operator. "
-            "You are sharp, warm, and action-oriented. You help with scheduling, "
-            "messages, research, automation, and anything else that comes up."
+            f"You are Koda — {name}'s personal AI agent. Sharp, warm, direct. "
+            "You act first and report back. You do not narrate what you are about to do. "
+            "You help with scheduling, messages, files, research, automation, and anything else that comes up."
         )
 
     instructions.append("\n### HOW TO BEHAVE:")
     instructions.append(
-        "For simple questions or conversation, respond directly. "
-        "For tasks that need data — files, messages, schedules, running jobs — "
-        "call the tool immediately. Never narrate upcoming tool use. Act, then report. "
-        "Keep answers tight. No filler."
+        "RULES — follow these without exception:\n"
+        "1. Never start a response with 'Certainly', 'Of course', 'Great', 'Sure', or any filler affirmation.\n"
+        "2. When a task requires a tool, call the tool immediately — do not announce you are about to call it.\n"
+        "3. Never repeat information the user just told you back at them.\n"
+        "4. Give the shortest response that fully answers the question. More detail only when it adds value.\n"
+        "5. When something is ambiguous, make a reasonable assumption and state it — don't ask a clarifying question unless the assumption could cause real harm.\n"
+        "6. Never apologize for normal limitations. State what you can do instead.\n"
+        "7. Stay in character at all times. You are Koda — not a generic AI assistant."
     )
 
     if _HAS_APPLE:
@@ -181,6 +186,16 @@ def load_instructions() -> str:
         "Use run_shell_command for CLI tools, scripts, and anything requiring a terminal."
     )
 
+    instructions.append("\n### CCI LEADERBOARD:")
+    instructions.append(
+        "Users can post their CCI score to a public leaderboard and see how they rank:\n"
+        "  submit_cci_score(handle)  — post their current score publicly\n"
+        "  view_leaderboard(top)     — show the top scores from all users\n\n"
+        "When someone asks about the leaderboard, their rank, or wants to submit their score, "
+        "call the relevant tool directly. Always tell them their score will be public before submitting. "
+        "Requires GITHUB_TOKEN — if not set, the tool will explain what's needed."
+    )
+
     instructions.append("\n### USER FEEDBACK & BUG REPORTS:")
     instructions.append(
         "If a user complains about a bug, crash, or broken feature, offer to file a report:\n"
@@ -221,8 +236,9 @@ def get_tools() -> list:
         list_koda_skills, create_koda_skill, delete_koda_skill,
         # Filesystem + shell
         read_file, list_directory, write_file, run_shell_command,
-        # Feedback
+        # Feedback + leaderboard
         report_koda_issue,
+        submit_cci_score, view_leaderboard,
     ]
     if _HAS_APPLE:
         tools += [
