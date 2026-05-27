@@ -48,6 +48,9 @@ def apply_learned_preference(pref: str) -> None:
 class HeartbeatRunner:
     def __init__(self, *args, **kwargs):
         self._task: Optional[asyncio.Task] = None
+        self._heartbeat_count: int = 0
+        self.interval_minutes: int = kwargs.get("interval_minutes", 30)
+        self._enabled: bool = True
 
     def start(self) -> None:
         pass
@@ -59,6 +62,18 @@ class HeartbeatRunner:
 
     def is_running(self) -> bool:
         return False
+
+    def set_enabled(self, enabled: bool) -> None:
+        self._enabled = enabled
+
+    def set_interval(self, minutes: int) -> None:
+        self.interval_minutes = minutes
+
+    def last_run(self) -> Optional[str]:
+        return None
+
+    def next_run_eta(self) -> str:
+        return "—"
 
     def get_pending_notice(self) -> Optional[str]:
         return None

@@ -1,19 +1,20 @@
 """
 CCI — Continuous Capability Improvement tracker.
-Tracks XP earned through tool use and conversations.
+Tracks XP and capability growth across sessions.
 """
 import json
 from pathlib import Path
+from typing import Tuple
 
 KODA_DIR = Path.home() / ".koda"
 CCI_FILE = KODA_DIR / "koda_cci.json"
 
 _TIERS = [
-    (0,     "Cub"),
-    (500,   "Scout"),
-    (2000,  "Ranger"),
-    (5000,  "Tracker"),
-    (10000, "Guardian"),
+    ("Cub",      "🐣", "#a8d8a8", 0.0),
+    ("Scout",    "🐾", "#7ec8a0", 1.0),
+    ("Ranger",   "🌲", "#4caf82", 2.5),
+    ("Tracker",  "🦅", "#2196a0", 5.0),
+    ("Guardian", "🐻", "#9c27b0", 10.0),
 ]
 
 
@@ -27,41 +28,88 @@ class CCITracker:
                 return json.loads(CCI_FILE.read_text())
             except Exception:
                 pass
-        return {"xp": 0, "sessions": 0, "tool_calls": 0, "turns": 0}
+        return {"score": 0.0, "sessions": 0, "tool_calls": 0, "turns": 0, "errors": 0, "history": []}
 
     def _save(self) -> None:
         KODA_DIR.mkdir(parents=True, exist_ok=True)
         CCI_FILE.write_text(json.dumps(self._data, indent=2))
 
     @property
-    def xp(self) -> int:
-        return self._data.get("xp", 0)
+    def score(self) -> float:
+        return float(self._data.get("score", 0.0))
 
-    def add_xp(self, amount: int, reason: str = "") -> None:
-        self._data["xp"] = self.xp + amount
+    def add_delta(self, delta: float, reason: str = "") -> float:
+        new_score = round(self.score + delta, 4)
+        self._data["score"] = new_score
+        history = self._data.setdefault("history", [])
+        history.append({"delta": delta, "reason": reason, "score": new_score})
+        if len(history) > 100:
+            self._data["history"] = history[-100:]
         self._save()
+        return new_score
 
-    def record_turn(self, tool_calls: int = 0) -> None:
+    def tier_info(self) -> Tuple[str, str, str]:
+        s = self.score
+        name, emoji, color, _ = _TIERS[0]
+        for t_name, t_emoji, t_color, threshold in _TIERS:
+            if s >= threshold:
+                name, emoji, color = t_name, t_emoji, t_color
+        return name, emoji, color
+
+    def tier_name(self) -> str:
+        return self.tier_info()[0]
+
+    def tier_color(self) -> str:
+        return self.tier_info()[2]
+
+    def autonomy_level(self) -> str:
+        s = self.score
+        if s >= 10.0: return "full"
+        if s >= 5.0:  return "high"
+        if s >= 2.5:  return "medium"
+        if s >= 1.0:  return "low"
+        return "minimal"
+
+    def record_turn(self) -> None:
         self._data["turns"] = self._data.get("turns", 0) + 1
-        self._data["tool_calls"] = self._data.get("tool_calls", 0) + tool_calls
-        self.add_xp(10 + tool_calls * 5)
+        self.add_delta(0.05, "turn")
+
+    def record_tool(self) -> None:
+        self._data["tool_calls"] = self._data.get("tool_calls", 0) + 1
+        self.add_delta(0.02, "tool_call")
+
+    def record_error(self) -> None:
+        self._data["errors"] = self._data.get("errors", 0) + 1
+        self.add_delta(-0.01, "error")
 
     def record_session_start(self) -> None:
         self._data["sessions"] = self._data.get("sessions", 0) + 1
-        self._save()
+        self.add_delta(0.1, "session_start")
 
-    def tier_name(self) -> str:
-        xp = self.xp
-        name = _TIERS[0][1]
-        for threshold, tier in _TIERS:
-            if xp >= threshold:
-                name = tier
-        return name
+    def record_aha_jordan(self, desc: str = "") -> float:
+        return self.add_delta(0.3, f"aha: {desc[:40]}")
+
+    def record_rate(self, rating: int) -> float:
+        delta = (rating - 3) * 0.1
+        return self.add_delta(delta, f"rating:{rating}")
+
+    def record_telegram_up(self) -> float:
+        return self.add_delta(0.05, "telegram_connected")
 
     def summary(self) -> str:
+        name, emoji, _ = self.tier_info()
         return (
-            f"Tier: {self.tier_name()} | XP: {self.xp} | "
-            f"Sessions: {self._data.get('sessions', 0)} | "
-            f"Turns: {self._data.get('turns', 0)} | "
-            f"Tool calls: {self._data.get('tool_calls', 0)}"
+            f"{emoji} {name}  ·  score {self.score:.2f}  ·  "
+            f"{self._data.get('sessions', 0)} sessions  ·  "
+            f"{self._data.get('turns', 0)} turns  ·  "
+            f"{self._data.get('tool_calls', 0)} tool calls"
         )
+
+    def sparkline(self, n: int = 8) -> str:
+        bars = "▁▂▃▄▅▆▇█"
+        history = self._data.get("history", [])[-n:]
+        if not history:
+            return "▁" * n
+        deltas = [h.get("delta", 0) for h in history]
+        max_d = max(abs(d) for d in deltas) or 1
+        return "".join(bars[min(7, max(0, int((d / max_d + 1) / 2 * 7)))] for d in deltas)
