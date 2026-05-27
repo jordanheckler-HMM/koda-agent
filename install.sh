@@ -72,10 +72,10 @@ fi
 PY_VERSION=$("$PYTHON" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 echo "Python $PY_VERSION — OK"
 
-# ── 1b. Ensure venv module is available (Linux/WSL only) ─────────────────────
+# ── 1b. Ensure venv + ensurepip are available (Linux/WSL only) ───────────────
 if [[ "$OSTYPE" != "darwin"* ]]; then
-    if ! "$PYTHON" -c "import venv" &>/dev/null 2>&1; then
-        echo "Installing python${PY_VERSION}-venv..."
+    if ! "$PYTHON" -c "import ensurepip" &>/dev/null 2>&1; then
+        echo "Installing python${PY_VERSION}-venv (needed to create environments)..."
         sudo apt-get install -y "python${PY_VERSION}-venv" 2>/dev/null || \
         sudo apt-get install -y python3-venv 2>/dev/null || true
     fi
@@ -87,11 +87,25 @@ VENV_DIR="$KODA_DIR/venv"
 
 mkdir -p "$KODA_DIR"
 
+# Check if venv exists AND is functional (pip present). If broken, wipe and redo.
+if [ -d "$VENV_DIR" ] && [ ! -f "$VENV_DIR/bin/pip" ]; then
+    echo "Existing environment is incomplete — rebuilding..."
+    rm -rf "$VENV_DIR"
+fi
+
 if [ ! -d "$VENV_DIR" ]; then
     echo "Setting up Koda environment..."
     "$PYTHON" -m venv "$VENV_DIR"
 else
-    echo "Koda environment already exists — skipping creation."
+    echo "Koda environment already exists — OK."
+fi
+
+# Verify pip is now present
+if [ ! -f "$VENV_DIR/bin/pip" ]; then
+    echo ""
+    echo "ERROR: Could not create a working Python environment."
+    echo "Try running manually: sudo apt install python${PY_VERSION}-venv"
+    exit 1
 fi
 
 # ── 3. Install the package ────────────────────────────────────────────────────
