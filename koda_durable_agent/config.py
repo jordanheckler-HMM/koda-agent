@@ -37,6 +37,9 @@ class Settings:
     TELEGRAM_CHAT_ID: str = os.getenv("TELEGRAM_CHAT_ID", "")
     TELEGRAM_ALLOWED_USERS: set = set()
 
+    # Sync interval
+    KODA_SYNC_INTERVAL_SECONDS: int = int(os.getenv("KODA_SYNC_INTERVAL_SECONDS", "300"))
+
     # Model config
     PRIMARY_MODEL: str = os.getenv("KODA_MODEL", "openai/gpt-oss-120b:free")
 

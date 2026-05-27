@@ -143,8 +143,12 @@ def main() -> None:
     session = KodaTUISession()
     try:
         asyncio.run(session.start_loop())
-    except (KeyboardInterrupt, SystemExit):
+    except (KeyboardInterrupt, SystemExit, asyncio.CancelledError):
         pass
+    except Exception as e:
+        # Swallow any residual asyncio shutdown noise
+        if "KeyboardInterrupt" not in str(type(e).__mro__):
+            raise
 
 
 if __name__ == "__main__":
