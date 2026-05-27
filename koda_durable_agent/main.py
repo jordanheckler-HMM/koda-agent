@@ -69,8 +69,8 @@ def run_update() -> None:
         print(f"     Re-run: bash {repo_dir}/install.sh")
         return
 
-    # Pull latest
-    result = subprocess.run(["git", "pull"], cwd=repo_dir, capture_output=True, text=True)
+    # Pull latest (explicit remote/branch so it works without tracking info)
+    result = subprocess.run(["git", "pull", "origin", "main"], cwd=repo_dir, capture_output=True, text=True)
     if result.returncode != 0:
         print(f"  ✗  git pull failed:\n{result.stderr.strip()}")
         return
