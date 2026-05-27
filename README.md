@@ -142,6 +142,29 @@ You can also edit `~/.koda/Soul.md` to change Koda's personality at a deeper lev
 
 ---
 
+## See Koda's brain in Obsidian (optional)
+
+[Obsidian](https://obsidian.md) is a free note app with a graph view that shows how your notes connect. When you link it to Koda, you get a live visual map of everything Koda knows — your sessions, automations, learned preferences, and CCI progress — all updating in real time as you use it.
+
+**Setup:**
+
+1. Download Obsidian at [obsidian.md](https://obsidian.md) — free, works on Mac and Windows
+2. Create a new vault (or use an existing one)
+3. Add one line to `~/.koda/.env`:
+
+```env
+OBSIDIAN_VAULT=/path/to/your/vault
+```
+
+On Mac the path is usually something like `/Users/yourname/Documents/MyVault`.
+On Windows (WSL) it looks like `/mnt/c/Users/yourname/Documents/MyVault`.
+
+4. Restart Koda — it will create a `Koda/` folder inside your vault automatically
+
+Open the graph view in Obsidian and you'll see Koda's notes grouped by type: sessions, brain state, automations, and more. It updates every time you use Koda.
+
+---
+
 ## Keeping Koda updated
 
 ```bash
