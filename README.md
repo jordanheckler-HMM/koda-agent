@@ -14,7 +14,7 @@ Koda is a terminal-based AI agent that lives on your machine, remembers your pre
 Open Terminal and run:
 
 ```bash
-bash <(curl -sSL https://raw.githubusercontent.com/jheckler/koda-agent/main/install.sh)
+bash <(curl -sSL https://raw.githubusercontent.com/jordanheckler-HMM/koda-agent/main/install.sh)
 ```
 
 ### Windows
@@ -34,7 +34,7 @@ This installs WSL (Windows Subsystem for Linux) — a free Microsoft tool that r
 In the Ubuntu window, run:
 
 ```bash
-bash <(curl -sSL https://raw.githubusercontent.com/jheckler/koda-agent/main/install.sh)
+bash <(curl -sSL https://raw.githubusercontent.com/jordanheckler-HMM/koda-agent/main/install.sh)
 ```
 
 The installer handles everything else automatically.
