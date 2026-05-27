@@ -1,9 +1,39 @@
-# Koda 🐻
-<img width="1024" height="416" alt="image" src="https://github.com/user-attachments/assets/d3797499-4b63-497e-ad23-b7832868376a" />
+<p align="center">
+  <img src="docs/screenshot.png" alt="Koda terminal interface" width="860" />
+</p>
 
-**Your personal AI agent. Runs on your computer. Works anywhere.**
+<h1 align="center">Koda 🐻</h1>
 
-Koda is a terminal-based AI agent that lives on your machine, remembers your preferences, and actually gets things done. Chat with it, schedule automations, and get updates on your phone — all from your own computer.
+<p align="center">
+  <strong>A personal AI agent that lives on your computer and actually gets things done.</strong><br/>
+  Terminal-based · Works on Mac and Windows · Free to start
+</p>
+
+<p align="center">
+  <a href="#install">Install</a> ·
+  <a href="#what-it-does">What it does</a> ·
+  <a href="#setup">Setup</a> ·
+  <a href="#obsidian-brain-view">Obsidian brain view</a> ·
+  <a href="#requirements">Requirements</a>
+</p>
+
+---
+
+## What it does
+
+Koda is not a chatbot. It's an agent — it has memory, runs automations on a schedule, reads your files and email, and shows up with context every time you open it.
+
+| Capability | Details |
+|---|---|
+| 💬 **Conversation** | Remembers your preferences and past context across sessions |
+| 📅 **Scheduler** | Set up recurring automations — morning briefs, inbox triage, weekly reviews |
+| 📧 **Email triage** | Reads your Outlook or Gmail inbox, surfaces what needs attention |
+| 📄 **Office files** | Reads and writes Word docs, Excel spreadsheets, and PDFs |
+| 📱 **Telegram delivery** | Get automation results sent to your phone |
+| 🛠️ **Shell + files** | Full access to your local filesystem and terminal |
+| 🍎 **macOS extras** | iMessages, Reminders, Calendar, Notes, Contacts |
+| 🧠 **Obsidian brain** | Visual graph of everything Koda knows, updating live |
+| 🏆 **CCI leaderboard** | Tracks quality growth over time, post your score publicly |
 
 ---
 
@@ -11,86 +41,58 @@ Koda is a terminal-based AI agent that lives on your machine, remembers your pre
 
 ### macOS
 
-Open Terminal and run:
-
 ```bash
 bash <(curl -sSL https://raw.githubusercontent.com/jordanheckler-HMM/koda-agent/main/install.sh)
 ```
 
 ### Windows
 
-**Step 1 — Install WSL** (skip if you already have it)
+**Step 1 — Open PowerShell and install WSL** (skip if you already have WSL)
 
-Open **PowerShell** (search "PowerShell" in the Start menu) and run:
+Search "PowerShell" in the Start menu, open it, and run:
 
 ```powershell
 wsl --install
 ```
 
-This installs WSL (Windows Subsystem for Linux) — a free Microsoft tool that runs Linux on Windows. Restart your computer when it finishes, then open the **Ubuntu** app from the Start menu.
+When it finishes, **restart your computer**.
 
-**Step 2 — Install Koda**
+**Step 2 — Open the Ubuntu app (not PowerShell)**
 
-In the Ubuntu window, run:
+After restarting, search **"Ubuntu"** in the Start menu and open it. It's a different app — black terminal window with a `$` prompt.
+
+> ⚠️ The next command will not work in PowerShell. It must be run inside Ubuntu.
+
+**Step 3 — Install Koda** (run this inside Ubuntu)
 
 ```bash
 bash <(curl -sSL https://raw.githubusercontent.com/jordanheckler-HMM/koda-agent/main/install.sh)
 ```
 
-The installer handles everything else automatically.
+The installer handles Python, dependencies, and PATH automatically.
 
-> Every time you want to run Koda on Windows, open the **Ubuntu** app from the Start menu and type `koda`.
-
----
-
-## What it does
-
-- **Chat** — talk to Koda like a smart assistant that knows you
-- **Scheduled automations** — morning briefs, reminders, weekly reviews on a timer
-- **Telegram delivery** — get automation results sent to your phone (optional)
-- **Full local access** — reads and writes files, runs commands
-- **Custom slash commands** — Koda builds its own `/skills` that you can run anytime
-- **macOS extras** — reads iMessages, Reminders, Calendar, Notes, and Contacts
+> Every time you want to run Koda, open **Ubuntu** from the Start menu and type `koda`.
 
 ---
 
 ## Setup
 
-The setup wizard runs automatically after install. You only need two things:
+The setup wizard runs automatically after install. You need two things:
 
 ### 1. Your name
+Koda uses it in conversations and automations.
 
-Just your first name — Koda uses it in conversations.
-
-### 2. An OpenRouter API key (free)
-
-OpenRouter is how Koda connects to AI models. The free tier is genuinely free — no credit card required.
+### 2. A free OpenRouter API key
+OpenRouter is how Koda connects to AI models. The free tier requires no credit card.
 
 1. Go to [openrouter.ai/keys](https://openrouter.ai/keys)
-2. Sign up (takes about a minute)
-3. Click **Create Key**
-4. Paste it into the setup wizard when asked
+2. Sign up — takes about a minute
+3. Click **Create Key** and paste it into the wizard
 
-That's it. Koda uses a free model by default so you won't spend anything.
+### Optional: Email, Telegram, Obsidian
+The wizard will ask about these. All optional — skip anything you don't need and add it later.
 
-### 3. Telegram (optional)
-
-Telegram lets Koda send automation results to your phone. Skip this during setup — you can add it later.
-
-If you do want it, setup will walk you through the steps.
-
----
-
-## Running Koda
-
-After install, type `koda` in your terminal to start. On Windows, run it from the Ubuntu app.
-
-```bash
-koda
-```
-
-To run setup again at any time:
-
+To re-run setup at any time:
 ```bash
 koda setup
 ```
@@ -99,16 +101,20 @@ koda setup
 
 ## Automations
 
-Ask Koda to set up automations in conversation:
+Ask Koda what's available and it'll show you a list of built-in options to install:
 
-> "What automations can I set up?"
+```
+> What automations can I set up?
+```
 
-Koda will show you a list of built-in options — morning briefs, SMS triage, weekly reviews, and more. You pick what you want. Nothing runs automatically unless you ask for it.
+Built-in templates include morning briefs, inbox triage, weekly reviews, daily focus, and reminders checks. Nothing runs automatically — you choose what to install and how it gets delivered.
 
 You can also ask for anything custom:
 
-> "Remind me every weekday at 9am to check my email"
-> "Send me a summary every Sunday evening"
+```
+> Remind me every weekday at 9am to check my pipeline
+> Send me a summary of my Excel report every Monday morning
+```
 
 ---
 
@@ -116,26 +122,30 @@ You can also ask for anything custom:
 
 Koda can build slash commands for itself:
 
-> "Create a /focus skill that helps me pick the one most important thing to work on"
+```
+> Create a /focus skill that helps me pick the one most important thing to work on today
+```
 
-Once created, type `/focus` to run it.
+Type `/focus` in the terminal to run it anytime.
 
 ---
 
 ## Personalizing Koda
 
-Koda learns your preferences as you use it. If you want to give it explicit instructions, tell it directly in conversation:
+Koda learns your preferences as you use it. You can also be explicit:
 
-> "Always be brief with me"
-> "Remember that I'm a morning person"
+```
+> Always be brief with me
+> I prefer bullet points over paragraphs
+```
 
-You can also edit `~/.koda/Soul.md` to change Koda's personality at a deeper level — but this is totally optional.
+Edit `~/.koda/Soul.md` to change Koda's personality at a deeper level — or leave it as-is.
 
 ---
 
-## See Koda's brain in Obsidian (optional)
+## Obsidian brain view
 
-[Obsidian](https://obsidian.md) is a free note app with a graph view that shows how your notes connect. When you link it to Koda, you get a live visual map of everything Koda knows — your sessions, automations, learned preferences, and CCI progress — all updating in real time as you use it.
+[Obsidian](https://obsidian.md) is a free note app with a graph view that shows how your notes connect. Link it to Koda and get a live visual map of everything Koda knows — sessions, automations, learned preferences, and progress.
 
 **Setup:**
 
@@ -147,12 +157,10 @@ You can also edit `~/.koda/Soul.md` to change Koda's personality at a deeper lev
 OBSIDIAN_VAULT=/path/to/your/vault
 ```
 
-On Mac the path is usually something like `/Users/yourname/Documents/MyVault`.
-On Windows (WSL) it looks like `/mnt/c/Users/yourname/Documents/MyVault`.
+- **Mac:** `/Users/yourname/Documents/MyVault`
+- **Windows (WSL):** `/mnt/c/Users/yourname/Documents/MyVault`
 
-4. Restart Koda — it will create a `Koda/` folder inside your vault automatically
-
-Open the graph view in Obsidian and you'll see Koda's notes grouped by type: sessions, brain state, automations, and more. It updates every time you use Koda.
+Restart Koda — it creates a `Koda/` folder in your vault and keeps it updated automatically.
 
 ---
 
@@ -167,7 +175,9 @@ koda update
 ## Requirements
 
 - **macOS** 12+ or **Windows 10/11** with WSL
-- A free [OpenRouter](https://openrouter.ai) account (the installer handles everything else)
+- A free [OpenRouter](https://openrouter.ai) account
+
+The installer handles Python, pip, and everything else.
 
 ---
 

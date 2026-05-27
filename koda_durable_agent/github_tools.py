@@ -1,5 +1,5 @@
 """
-GitHub tools — lets Koda file issues on jheckler/koda-agent.
+GitHub tools — lets Koda file issues on jordanheckler-HMM/koda-agent.
 
 Used when a user reports a bug, crash, or complaint so it doesn't get lost.
 Requires GITHUB_TOKEN in ~/.koda/.env with public_repo scope.
@@ -12,7 +12,7 @@ from typing import Optional
 
 logger = logging.getLogger("koda.github")
 
-_REPO = "jheckler/koda-agent"
+_REPO = "jordanheckler-HMM/koda-agent"
 _API_BASE = "https://api.github.com"
 
 
@@ -45,7 +45,7 @@ def report_koda_issue(title: str, description: str, category: str = "bug") -> st
     if not token:
         return (
             "GitHub token not configured — can't file the issue automatically.\n"
-            "The user can report it manually at: https://github.com/jheckler/koda-agent/issues"
+            "The user can report it manually at: https://github.com/jordanheckler-HMM/koda-agent/issues"
         )
 
     label_map = {
@@ -90,5 +90,5 @@ def report_koda_issue(title: str, description: str, category: str = "bug") -> st
         logger.warning(f"GitHub issue creation failed: {e}")
         return (
             f"Couldn't file the issue automatically ({e}).\n"
-            f"The user can report it at: https://github.com/jheckler/koda-agent/issues"
+            f"The user can report it at: https://github.com/jordanheckler-HMM/koda-agent/issues"
         )

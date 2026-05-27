@@ -1,5 +1,5 @@
 """
-Koda CCI Leaderboard — powered by GitHub Issues on jheckler/koda-agent.
+Koda CCI Leaderboard — powered by GitHub Issues on jordanheckler-HMM/koda-agent.
 
 Each user submits their score by filing a GitHub issue with the 'leaderboard'
 label. The leaderboard is built by reading all such issues. Users need only
@@ -16,7 +16,7 @@ from typing import Optional
 
 logger = logging.getLogger("koda.leaderboard")
 
-_REPO = "jheckler/koda-agent"
+_REPO = "jordanheckler-HMM/koda-agent"
 _LABEL = "leaderboard"
 _API_BASE = "https://api.github.com"
 
@@ -106,7 +106,7 @@ def submit_cci_score(handle: str = "") -> str:
         f"**Sessions:** {sessions}\n"
         f"**Turns:** {turns}\n"
         f"**Submitted:** {date_str}\n\n"
-        f"---\n_Submitted from Koda. [What is CCI?](https://github.com/jheckler/koda-agent#cci)_"
+        f"---\n_Submitted from Koda. [What is CCI?](https://github.com/jordanheckler-HMM/koda-agent#cci)_"
     )
 
     try:
