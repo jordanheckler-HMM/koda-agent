@@ -159,6 +159,7 @@ class KodaTUISession:
         self._sleep_runner: Optional[SleepCycleRunner] = None
         self._cron_runner: Optional[KodaCronRunner] = None
         self._pending_cron_notice: Optional[str] = None
+        self._update_available: bool = False
 
         # Load persistent user prefs (default model, etc.) before model discovery
         self._prefs: dict = self._load_prefs()
@@ -1030,9 +1031,41 @@ class KodaTUISession:
             self._or_messages.pop()
             raise
 
+    async def _check_for_update(self) -> None:
+        """Background task — sets _update_available if remote has newer commits."""
+        try:
+            import subprocess
+            from pathlib import Path as _Path
+            repo_dir = _Path(__file__).resolve().parent.parent
+            if not (repo_dir / ".git").exists():
+                return
+            proc = await asyncio.create_subprocess_exec(
+                "git", "ls-remote", "origin", "HEAD",
+                cwd=str(repo_dir),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
+            stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=8)
+            remote_sha = stdout.decode().split()[0] if stdout else ""
+            if not remote_sha:
+                return
+            proc2 = await asyncio.create_subprocess_exec(
+                "git", "rev-parse", "HEAD",
+                cwd=str(repo_dir),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
+            stdout2, _ = await asyncio.wait_for(proc2.communicate(), timeout=4)
+            local_sha = stdout2.decode().strip() if stdout2 else ""
+            if remote_sha and local_sha and remote_sha != local_sha:
+                self._update_available = True
+        except Exception:
+            pass
+
     def _build_boot_status(self, telegram_online: bool) -> Rule:
         tg = "[green]tg ✓[/]" if telegram_online else "[yellow]tg ✗[/]"
-        return Rule(f" 🐻 koda ready  ·  {tg}  ·  {self.current_model} ", style="#7ec8a0")
+        update = "  ·  [yellow]update available — koda update[/]" if self._update_available else ""
+        return Rule(f" 🐻 koda ready  ·  {tg}  ·  {self.current_model}{update} ", style="#7ec8a0")
 
     async def close_agent(self):
         """Clean teardown of the active Antigravity session."""
@@ -3550,6 +3583,7 @@ class KodaTUISession:
     async def start_loop(self):
         """Master CLI keyboard and interactive shell supervisor loop."""
         self.print_welcome_banner()
+        _update_check_task = asyncio.create_task(self._check_for_update())
         await self.sync_brain("startup")
         self.sync_task = asyncio.create_task(self._background_sync_loop())
 
@@ -3593,6 +3627,12 @@ class KodaTUISession:
             send_telegram=self._send_telegram_outbound,
         )
         self._cron_runner.start()
+
+        # Wait for update check (should already be done; 2s max grace period)
+        try:
+            await asyncio.wait_for(_update_check_task, timeout=2.0)
+        except Exception:
+            pass
 
         console.print(
             self._build_boot_status(telegram_online)
