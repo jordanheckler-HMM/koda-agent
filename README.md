@@ -28,25 +28,15 @@ wsl --install
 
 This installs WSL (Windows Subsystem for Linux) — a free Microsoft tool that runs Linux on Windows. Restart your computer when it finishes, then open the **Ubuntu** app from the Start menu.
 
-**Step 2 — Install Python 3.11**
+**Step 2 — Install Koda**
 
 In the Ubuntu window, run:
-
-```bash
-sudo apt update && sudo apt install -y python3.11 python3.11-venv curl
-```
-
-**Step 3 — Install Koda**
 
 ```bash
 bash <(curl -sSL https://raw.githubusercontent.com/jheckler/koda-agent/main/install.sh)
 ```
 
-**Step 4 — Add Koda to your PATH** (if the installer tells you to)
-
-```bash
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
-```
+The installer handles everything else automatically.
 
 > Every time you want to run Koda on Windows, open the **Ubuntu** app from the Start menu and type `koda`.
 
@@ -176,8 +166,7 @@ koda update
 ## Requirements
 
 - **macOS** 12+ or **Windows 10/11** with WSL
-- Python 3.11+ (the installer handles this)
-- A free [OpenRouter](https://openrouter.ai) account
+- A free [OpenRouter](https://openrouter.ai) account (the installer handles everything else)
 
 ---
 

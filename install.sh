@@ -7,24 +7,69 @@ set -e
 
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-echo "=== Koda Agent Installer ==="
-echo "Repo: $REPO_DIR"
+echo ""
+echo "╔══════════════════════════════╗"
+echo "║   🐻  Koda Agent Installer   ║"
+echo "╚══════════════════════════════╝"
+echo ""
 
-# ── 1. Check Python >= 3.11 ──────────────────────────────────────────────────
-PYTHON=$(command -v python3 || true)
+# ── 1. Ensure Python 3.11+ is available ──────────────────────────────────────
+_py_version_ok() {
+    local py="$1"
+    local ver
+    ver=$("$py" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null) || return 1
+    local major minor
+    major=$(echo "$ver" | cut -d. -f1)
+    minor=$(echo "$ver" | cut -d. -f2)
+    [ "$major" -gt 3 ] || { [ "$major" -eq 3 ] && [ "$minor" -ge 11 ]; }
+}
+
+PYTHON=""
+
+# Check common explicit python3.11+ names first
+for candidate in python3.13 python3.12 python3.11 python3 python; do
+    if command -v "$candidate" &>/dev/null && _py_version_ok "$candidate"; then
+        PYTHON=$(command -v "$candidate")
+        break
+    fi
+done
+
 if [ -z "$PYTHON" ]; then
-    echo "ERROR: python3 not found. Install Python 3.11+ and try again."
-    exit 1
+    echo "Python 3.11+ not found — installing it now..."
+    echo ""
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS — use Homebrew, installing it first if needed
+        if ! command -v brew &>/dev/null; then
+            echo "Installing Homebrew (the standard macOS package manager)..."
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            # Add Homebrew to PATH for this session (Apple Silicon vs Intel)
+            if [ -f /opt/homebrew/bin/brew ]; then
+                eval "$(/opt/homebrew/bin/brew shellenv)"
+            elif [ -f /usr/local/bin/brew ]; then
+                eval "$(/usr/local/bin/brew shellenv)"
+            fi
+        fi
+        echo "Installing Python 3.11..."
+        brew install python@3.11
+        PYTHON=$(brew --prefix python@3.11)/bin/python3.11
+    else
+        # Linux / WSL
+        echo "Installing Python 3.11 via apt (you may be asked for your password)..."
+        sudo apt-get update -qq
+        sudo apt-get install -y python3.11 python3.11-venv curl
+        PYTHON=$(command -v python3.11)
+    fi
+
+    if [ -z "$PYTHON" ] || ! _py_version_ok "$PYTHON"; then
+        echo ""
+        echo "ERROR: Could not install Python automatically."
+        echo "Please install Python 3.11 manually from https://python.org and run this script again."
+        exit 1
+    fi
 fi
 
 PY_VERSION=$("$PYTHON" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
-PY_MAJOR=$(echo "$PY_VERSION" | cut -d. -f1)
-PY_MINOR=$(echo "$PY_VERSION" | cut -d. -f2)
-
-if [ "$PY_MAJOR" -lt 3 ] || { [ "$PY_MAJOR" -eq 3 ] && [ "$PY_MINOR" -lt 11 ]; }; then
-    echo "ERROR: Python 3.11+ required. Found Python $PY_VERSION."
-    exit 1
-fi
 echo "Python $PY_VERSION — OK"
 
 # ── 2. Create virtualenv at ~/.koda/venv ─────────────────────────────────────
@@ -34,17 +79,17 @@ VENV_DIR="$KODA_DIR/venv"
 mkdir -p "$KODA_DIR"
 
 if [ ! -d "$VENV_DIR" ]; then
-    echo "Creating virtualenv at $VENV_DIR ..."
+    echo "Setting up Koda environment..."
     "$PYTHON" -m venv "$VENV_DIR"
 else
-    echo "Virtualenv already exists at $VENV_DIR — skipping creation."
+    echo "Koda environment already exists — skipping creation."
 fi
 
 # ── 3. Install the package ────────────────────────────────────────────────────
-echo "Installing koda-agent from $REPO_DIR ..."
+echo "Installing Koda..."
 "$VENV_DIR/bin/pip" install --quiet --upgrade pip
 "$VENV_DIR/bin/pip" install -e "$REPO_DIR"
-echo "Package installed."
+echo "Done."
 
 # ── 4. Create koda wrapper script ────────────────────────────────────────────
 WRAPPER_CONTENT="#!/usr/bin/env bash
@@ -62,49 +107,54 @@ fi
 
 echo "$WRAPPER_CONTENT" > "$WRAPPER_PATH"
 chmod +x "$WRAPPER_PATH"
-echo "Wrapper script written to $WRAPPER_PATH"
 
 # ── 5. Config directory ───────────────────────────────────────────────────────
 mkdir -p "$KODA_DIR"
-echo "Config directory ready at $KODA_DIR"
 
 # ── 6. Template .env ─────────────────────────────────────────────────────────
 ENV_FILE="$KODA_DIR/.env"
 if [ ! -f "$ENV_FILE" ]; then
     cat > "$ENV_FILE" <<'EOF'
-# Koda Agent — environment configuration
-# Fill in your API keys and settings below.
+# Koda Agent — configuration
+# Fill in your API keys below.
 
-# Required: OpenRouter API key for LLM access
-OPENROUTER_API_KEY=your_openrouter_api_key_here
+# Required: get a free key at https://openrouter.ai/keys
+OPENROUTER_API_KEY=
 
-# Optional: Telegram bot for remote access
-TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
-TELEGRAM_CHAT_ID=your_telegram_chat_id_here
+# Optional: Telegram for phone notifications
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
 
-# Your name (used in agent prompts)
+# Your name
 USER_NAME=
 EOF
-    echo "Template .env written to $ENV_FILE"
-else
-    echo ".env already exists at $ENV_FILE — skipping."
 fi
 
-# ── 7. Run first-time setup wizard ───────────────────────────────────────────
-echo ""
-echo "=== Koda installed successfully! ==="
+# ── 7. PATH notice + run setup wizard ────────────────────────────────────────
 echo ""
 
 if [[ "$WRAPPER_PATH" == "$HOME/.local/bin/koda" ]]; then
-    echo "  NOTE: $HOME/.local/bin is your wrapper location."
-    echo "  Make sure it's on your PATH. Add this to ~/.zshrc or ~/.bashrc:"
-    echo "    export PATH=\"\$HOME/.local/bin:\$PATH\""
-    echo ""
-    # Add to PATH for this session so we can run koda setup immediately
+    # Add to PATH for this session
     export PATH="$HOME/.local/bin:$PATH"
+
+    # Persist to shell rc file
+    SHELL_RC=""
+    if [ -f "$HOME/.zshrc" ]; then
+        SHELL_RC="$HOME/.zshrc"
+    elif [ -f "$HOME/.bashrc" ]; then
+        SHELL_RC="$HOME/.bashrc"
+    fi
+
+    PATH_LINE='export PATH="$HOME/.local/bin:$PATH"'
+    if [ -n "$SHELL_RC" ] && ! grep -qF "$PATH_LINE" "$SHELL_RC"; then
+        echo "" >> "$SHELL_RC"
+        echo "# Koda" >> "$SHELL_RC"
+        echo "$PATH_LINE" >> "$SHELL_RC"
+        echo "Added Koda to PATH in $SHELL_RC"
+    fi
 fi
 
-echo "Running setup wizard..."
+echo "Running setup..."
 echo ""
 "$VENV_DIR/bin/python" -m koda_durable_agent.main setup
 echo ""
