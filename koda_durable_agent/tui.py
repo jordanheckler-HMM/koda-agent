@@ -635,11 +635,14 @@ class KodaTUISession:
         # Load history file if it exists
         try:
             readline.read_history_file(self.history_file)
-        except FileNotFoundError:
+        except (FileNotFoundError, PermissionError, OSError):
             pass
-            
+
         # Register history save callback on exit
-        atexit.register(readline.write_history_file, self.history_file)
+        try:
+            atexit.register(readline.write_history_file, self.history_file)
+        except (PermissionError, OSError):
+            pass
         
         def completer(text: str, state: int) -> Optional[str]:
             line = readline.get_line_buffer()
