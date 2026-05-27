@@ -47,17 +47,23 @@ bash <(curl -sSL https://raw.githubusercontent.com/jheckler/koda-agent/main/inst
 
 ### Windows
 
-**Step 1 — Install WSL** (skip if you already have it)
+**Step 1 — Open PowerShell and install WSL** (skip if you already have WSL)
 
-Open **PowerShell** (search "PowerShell" in the Start menu) and run:
+Search "PowerShell" in the Start menu, open it, and run:
 
 ```powershell
 wsl --install
 ```
 
-Restart your computer, then open the **Ubuntu** app from the Start menu.
+When it finishes, **restart your computer**.
 
-**Step 2 — Install Koda**
+**Step 2 — Open the Ubuntu app (not PowerShell)**
+
+After restarting, search **"Ubuntu"** in the Start menu and open it. It's a different app — black terminal window with a `$` prompt.
+
+> ⚠️ The next command will not work in PowerShell. It must be run inside Ubuntu.
+
+**Step 3 — Install Koda** (run this inside Ubuntu)
 
 ```bash
 bash <(curl -sSL https://raw.githubusercontent.com/jheckler/koda-agent/main/install.sh)
@@ -65,7 +71,7 @@ bash <(curl -sSL https://raw.githubusercontent.com/jheckler/koda-agent/main/inst
 
 The installer handles Python, dependencies, and PATH automatically.
 
-> Every time you want to run Koda on Windows, open the **Ubuntu** app and type `koda`.
+> Every time you want to run Koda, open **Ubuntu** from the Start menu and type `koda`.
 
 ---
 
