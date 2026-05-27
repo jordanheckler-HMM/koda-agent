@@ -125,6 +125,9 @@ OPENROUTER_API_KEY=
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
 
+# Optional: GitHub token for filing user bug reports (public_repo scope)
+GITHUB_TOKEN=
+
 # Your name
 USER_NAME=
 EOF

@@ -193,6 +193,29 @@ def run_setup() -> None:
         _ok("Apple Reminders, Notes, Calendar, Contacts access available")
         _info("These work automatically — no extra setup needed.")
 
+    # ── GitHub token ───────────────────────────────────────────
+    _h("Step 5 — GitHub feedback token (optional)")
+    _info("This lets Koda file bug reports automatically when users complain.")
+    _info("Get a free token at: https://github.com/settings/tokens")
+    _info("Needs 'public_repo' scope only.")
+    _p()
+    existing_gh = existing_env.get("GITHUB_TOKEN", "")
+    if existing_gh and not existing_gh.startswith("your_"):
+        _ok(f"GitHub token already set ({existing_gh[:12]}...)")
+        github_token = existing_gh
+    else:
+        setup_gh = _ask("Set up GitHub feedback now? (y/n)", "n").lower()
+        if setup_gh in ("y", "yes"):
+            github_token = _ask_secret("GitHub personal access token (starts with ghp_)")
+            if github_token:
+                _ok("GitHub token configured.")
+            else:
+                github_token = ""
+                _info("Skipped — you can add GITHUB_TOKEN to ~/.koda/.env later.")
+        else:
+            github_token = ""
+            _info("Skipped. You can configure it later.")
+
     # ── Save config ────────────────────────────────────────────
     _h("Saving configuration...")
     env = dict(existing_env)
@@ -203,6 +226,8 @@ def run_setup() -> None:
         env["TELEGRAM_BOT_TOKEN"] = telegram_token
     if telegram_chat:
         env["TELEGRAM_CHAT_ID"] = telegram_chat
+    if github_token:
+        env["GITHUB_TOKEN"] = github_token
 
     _save_env(env)
     _ok(f"Config saved to {ENV_FILE}")

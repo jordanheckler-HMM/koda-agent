@@ -44,6 +44,7 @@ from koda_durable_agent.koda_templates import (
 from koda_durable_agent.koda_fs_tools import (
     read_file, list_directory, write_file, run_shell_command,
 )
+from koda_durable_agent.github_tools import report_koda_issue
 
 # ---------------------------------------------------------------------------
 # Config paths — portable, no hardcoded user paths
@@ -180,6 +181,16 @@ def load_instructions() -> str:
         "Use run_shell_command for CLI tools, scripts, and anything requiring a terminal."
     )
 
+    instructions.append("\n### USER FEEDBACK & BUG REPORTS:")
+    instructions.append(
+        "If a user complains about a bug, crash, or broken feature, offer to file a report:\n"
+        "  report_koda_issue(title, description, category) — files a GitHub issue\n\n"
+        "Always tell the user exactly what will be posted and get their confirmation first. "
+        "Never include their name or personal details in the report. "
+        "category options: 'bug', 'crash', 'feature-request', 'question'. "
+        "If GITHUB_TOKEN is not configured it will give the user a direct link instead."
+    )
+
     # Inject learned preferences from heartbeat
     learned_path = KODA_DIR / "koda_learned.md"
     if learned_path.exists():
@@ -210,6 +221,8 @@ def get_tools() -> list:
         list_koda_skills, create_koda_skill, delete_koda_skill,
         # Filesystem + shell
         read_file, list_directory, write_file, run_shell_command,
+        # Feedback
+        report_koda_issue,
     ]
     if _HAS_APPLE:
         tools += [
