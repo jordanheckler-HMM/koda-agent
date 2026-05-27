@@ -1,144 +1,160 @@
 # Koda 🐻
 
-**Your personal AI agent. Runs locally. Works everywhere.**
+**Your personal AI agent. Runs on your computer. Works anywhere.**
 
-Koda is a terminal-based personal AI agent that lives on your machine and actually gets things done. It has a real-time TUI, a built-in cron scheduler, Telegram delivery, and full filesystem and shell access. On macOS it also reads your iMessages, calendar, reminders, notes, and contacts.
-
----
-
-## What Koda does
-
-- **Chat with context** — Koda knows your name, preferences, and prior instructions
-- **Schedule automations** — morning briefs, SMS triage, anything on a cron schedule
-- **Telegram delivery** — get cron results on your phone
-- **Full local access** — reads/writes files and runs shell commands
-- **Custom slash commands** — Koda can create its own `/skills` you define in conversation
-- **macOS native tools** — iMessages, Reminders, Calendar, Notes, Contacts (macOS only)
-- **Cross-platform core** — all features except Apple tools work on Linux and Windows
+Koda is a terminal-based AI agent that lives on your machine, remembers your preferences, and actually gets things done. Chat with it, schedule automations, and get updates on your phone — all from your own computer.
 
 ---
 
 ## Install
 
+### macOS
+
+Open Terminal and run:
+
 ```bash
 bash <(curl -sSL https://raw.githubusercontent.com/jheckler/koda-agent/main/install.sh)
 ```
 
-Or clone and run locally:
+### Windows
 
-```bash
-git clone https://github.com/jheckler/koda-agent
-cd koda-agent
-bash install.sh
+**Step 1 — Install WSL** (skip if you already have it)
+
+Open **PowerShell** (search "PowerShell" in the Start menu) and run:
+
+```powershell
+wsl --install
 ```
 
-The installer will:
-1. Create a virtualenv at `~/.koda/venv`
-2. Install the package
-3. Write a `koda` wrapper to `/usr/local/bin/koda`
-4. Run the setup wizard
+This installs WSL (Windows Subsystem for Linux) — a free Microsoft tool that runs Linux on Windows. Restart your computer when it finishes, then open the **Ubuntu** app from the Start menu.
+
+**Step 2 — Install Python 3.11**
+
+In the Ubuntu window, run:
+
+```bash
+sudo apt update && sudo apt install -y python3.11 python3.11-venv curl
+```
+
+**Step 3 — Install Koda**
+
+```bash
+bash <(curl -sSL https://raw.githubusercontent.com/jheckler/koda-agent/main/install.sh)
+```
+
+**Step 4 — Add Koda to your PATH** (if the installer tells you to)
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+```
+
+> Every time you want to run Koda on Windows, open the **Ubuntu** app from the Start menu and type `koda`.
+
+---
+
+## What it does
+
+- **Chat** — talk to Koda like a smart assistant that knows you
+- **Scheduled automations** — morning briefs, reminders, weekly reviews on a timer
+- **Telegram delivery** — get automation results sent to your phone (optional)
+- **Full local access** — reads and writes files, runs commands
+- **Custom slash commands** — Koda builds its own `/skills` that you can run anytime
+- **macOS extras** — reads iMessages, Reminders, Calendar, Notes, and Contacts
 
 ---
 
 ## Setup
 
-The setup wizard runs automatically after install. To run it manually:
+The setup wizard runs automatically after install. You only need two things:
+
+### 1. Your name
+
+Just your first name — Koda uses it in conversations.
+
+### 2. An OpenRouter API key (free)
+
+OpenRouter is how Koda connects to AI models. The free tier is genuinely free — no credit card required.
+
+1. Go to [openrouter.ai/keys](https://openrouter.ai/keys)
+2. Sign up (takes about a minute)
+3. Click **Create Key**
+4. Paste it into the setup wizard when asked
+
+That's it. Koda uses a free model by default so you won't spend anything.
+
+### 3. Telegram (optional)
+
+Telegram lets Koda send automation results to your phone. Skip this during setup — you can add it later.
+
+If you do want it, setup will walk you through the steps.
+
+---
+
+## Running Koda
+
+After install, type `koda` in your terminal to start. On Windows, run it from the Ubuntu app.
+
+```bash
+koda
+```
+
+To run setup again at any time:
 
 ```bash
 koda setup
 ```
 
-It walks you through:
-- Your name (used in prompts and briefs)
-- OpenRouter API key — get one free at [openrouter.ai/keys](https://openrouter.ai/keys)
-- Telegram bot token and chat ID (optional but recommended for phone delivery)
-
-Config is saved to `~/.koda/.env`.
-
 ---
 
-## Configuration
+## Automations
 
-`~/.koda/.env`:
+Ask Koda to set up automations in conversation:
 
-```env
-# Required
-OPENROUTER_API_KEY=sk-or-...
+> "What automations can I set up?"
 
-# Optional: Telegram for phone delivery
-TELEGRAM_BOT_TOKEN=your_bot_token
-TELEGRAM_CHAT_ID=your_chat_id
+Koda will show you a list of built-in options — morning briefs, SMS triage, weekly reviews, and more. You pick what you want. Nothing runs automatically unless you ask for it.
 
-# Your name
-USER_NAME=Alex
+You can also ask for anything custom:
 
-# Override the default model (default: openai/gpt-oss-120b:free)
-KODA_MODEL=openai/gpt-oss-120b:free
-```
-
----
-
-## Customize Koda's personality
-
-Edit `~/.koda/Soul.md` to change how Koda talks, what it prioritizes, and how it operates. It's loaded as Koda's system prompt every session.
-
-You can also create `~/.koda/UserProfile.md` for personal rules and preferences Koda should always follow.
-
----
-
-## Scheduler
-
-Koda has a built-in cron scheduler. You can manage it in conversation:
-
-> "Schedule a daily brief every morning at 8am and send it to Telegram"
-> "Show me all my scheduled jobs"
-> "Run the Morning Brief now"
-
-Schedule formats:
-- `daily@08:00` — every day at 8am
-- `weekly@mon@09:00` — every Monday at 9am
-- `60` — every 60 minutes
-
-Delivery options: `telegram`, `chat`, `background`
+> "Remind me every weekday at 9am to check my email"
+> "Send me a summary every Sunday evening"
 
 ---
 
 ## Custom skills
 
-Koda can create slash commands for itself:
+Koda can build slash commands for itself:
 
-> "Create a /focus skill that helps me pick the one most important thing to work on right now"
+> "Create a /focus skill that helps me pick the one most important thing to work on"
 
-Once created, type `/focus` in the TUI to run it.
-
----
-
-## Default automations
-
-The setup wizard creates two default cron jobs:
-
-| Job | Schedule | What it does |
-|-----|----------|-------------|
-| Morning Brief | daily@08:00 | Date, day of week, one motivating thought |
-| SMS Triage *(macOS only)* | daily@09:00 | Scans iMessages, flags what needs a reply |
+Once created, type `/focus` to run it.
 
 ---
 
-## Tech
+## Personalizing Koda
 
-- **LLMs via OpenRouter** — any model available on OpenRouter works
-- **TUI** — [Rich](https://github.com/Textualize/rich) with asyncio, raw mode input, live streaming
-- **Telegram** — `python-telegram-bot` style polling via httpx
-- **macOS tools** — AppleScript via `osascript` subprocess calls
-- **Optional Gemini path** — `pip install koda-agent[gemini]` for Google Antigravity SDK
+Koda learns your preferences as you use it. If you want to give it explicit instructions, tell it directly in conversation:
+
+> "Always be brief with me"
+> "Remember that I'm a morning person"
+
+You can also edit `~/.koda/Soul.md` to change Koda's personality at a deeper level — but this is totally optional.
+
+---
+
+## Keeping Koda updated
+
+```bash
+koda update
+```
 
 ---
 
 ## Requirements
 
-- Python 3.11+
-- An [OpenRouter](https://openrouter.ai) API key (free tier works)
-- macOS, Linux, or Windows (WSL recommended on Windows)
+- **macOS** 12+ or **Windows 10/11** with WSL
+- Python 3.11+ (the installer handles this)
+- A free [OpenRouter](https://openrouter.ai) account
 
 ---
 
