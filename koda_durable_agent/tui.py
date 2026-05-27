@@ -3611,8 +3611,8 @@ class KodaTUISession:
 
         self._sleep_runner = SleepCycleRunner(
             cci_tracker=self.cci,
-            prefs=self._prefs,
-            save_prefs=self._save_prefs,
+            get_interactions=lambda: list(self._or_messages),
+            get_turns=lambda: self.turn_count,
             notify=self._queue_sleep_notice,
         )
         if self._prefs.get("sleep_cycle", {}).get("enabled", True):

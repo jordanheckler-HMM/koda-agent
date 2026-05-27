@@ -40,6 +40,10 @@ class Settings:
     # Sync interval
     KODA_SYNC_INTERVAL_SECONDS: int = int(os.getenv("KODA_SYNC_INTERVAL_SECONDS", "300"))
 
+    # Obsidian vault path (optional — empty means no vault configured)
+    OBSIDIAN_VAULT: str = os.getenv("OBSIDIAN_VAULT", "")
+    KODA_OBSIDIAN_VAULT: str = os.getenv("OBSIDIAN_VAULT", "")
+
     # Model config
     PRIMARY_MODEL: str = os.getenv("KODA_MODEL", "openai/gpt-oss-120b:free")
 
@@ -59,6 +63,8 @@ class Settings:
         self.TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", self.TELEGRAM_BOT_TOKEN)
         self.TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", self.TELEGRAM_CHAT_ID)
         self.PRIMARY_MODEL = os.getenv("KODA_MODEL", self.PRIMARY_MODEL)
+        self.OBSIDIAN_VAULT = os.getenv("OBSIDIAN_VAULT", self.OBSIDIAN_VAULT)
+        self.KODA_OBSIDIAN_VAULT = self.OBSIDIAN_VAULT
 
         if self.GEMINI_API_KEY:
             os.environ["GEMINI_API_KEY"] = self.GEMINI_API_KEY
