@@ -1,4 +1,5 @@
 # Koda 🐻
+<img width="1024" height="416" alt="image" src="https://github.com/user-attachments/assets/d3797499-4b63-497e-ad23-b7832868376a" />
 
 **Your personal AI agent. Runs on your computer. Works anywhere.**
 
