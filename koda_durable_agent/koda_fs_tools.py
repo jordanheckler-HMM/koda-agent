@@ -4,9 +4,9 @@ import subprocess
 import os
 from pathlib import Path
 
-# AI CLI tools that cost money to invoke. Koda must not call these autonomously.
-# If a user explicitly asks Koda to run one of these, it should tell them to
-# run it themselves rather than calling it via shell.
+# AI CLI tools that cost the user money or quota when invoked.
+# Koda will ask for approval before running these — the user can approve
+# once, deny once, or say "never ask again" either way.
 _AI_CLI_PATTERN = re.compile(
     r"(?<![/\w])(claude|codex|anthropic|gemini|openai|copilot|cursor|aider|gpt4all|ollama run)\b",
     re.IGNORECASE,
@@ -73,11 +73,17 @@ def run_shell_command(command: str) -> str:
     match = _AI_CLI_PATTERN.search(command)
     if match:
         tool = match.group(1).lower()
-        return (
-            f"Blocked: Koda does not call external AI tools automatically ({tool} detected). "
-            f"Running AI CLIs in the background can consume your API credits without warning. "
-            f"If you want to use {tool}, please run it yourself in a separate terminal."
+        from koda_durable_agent.approval import request_approval
+        approved = request_approval(
+            title=f"Run {tool}? This may use your API credits.",
+            subtitle=command,
+            approval_key=f"ai_cli:{tool}",
         )
+        if not approved:
+            return (
+                f"Not run. If you want to use {tool}, you can run it yourself "
+                f"in a separate terminal, or approve it when Koda asks next time."
+            )
 
     try:
         result = subprocess.run(

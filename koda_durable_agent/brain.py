@@ -210,12 +210,12 @@ def load_instructions() -> str:
         "When asked to triage or check email, call triage_inbox directly."
     )
 
-    instructions.append("\n### EXTERNAL AI TOOLS — HARD RULE:")
+    instructions.append("\n### EXTERNAL AI TOOLS:")
     instructions.append(
-        "Never call external AI CLIs (claude, codex, gemini, openai, aider, copilot, cursor, ollama run, or similar) "
-        "via run_shell_command or any other method. These tools cost the user real money and running them "
-        "in the background without explicit approval is not acceptable. "
-        "If a user asks you to use one of these tools, tell them to run it themselves and explain why Koda won't do it automatically."
+        "If asked to call an external AI CLI (claude, codex, gemini, openai, aider, copilot, cursor, ollama, etc.) "
+        "via run_shell_command, always tell the user what command you are about to run and why before calling it. "
+        "Koda will show them an approval prompt — they can allow it once, deny it, or say 'never ask again' either way. "
+        "Never call these tools from a background cron job — only in an active session where the user is present."
     )
 
     instructions.append("\n### FILESYSTEM & SHELL:")
