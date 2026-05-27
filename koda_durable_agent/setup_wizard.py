@@ -110,71 +110,6 @@ That's the job. Be good at it.
     SOUL_FILE.write_text(soul)
 
 
-def _setup_default_crons(user_name: str, has_telegram: bool) -> list:
-    """Return a list of default cron job dicts to create."""
-    delivery = "telegram" if has_telegram else "chat"
-    jobs = []
-
-    # Universal: morning brief
-    jobs.append({
-        "name": "Morning Brief",
-        "task": (
-            f"Write a short morning brief for {user_name}. "
-            "Include: today's date, day of week, and one motivating thought for the day. "
-            "Keep it under 4 sentences. Be warm and direct. No filler."
-        ),
-        "schedule": "daily@08:00",
-        "delivery": delivery,
-        "model": "",
-    })
-
-    # macOS only: SMS triage
-    if _IS_MACOS:
-        jobs.append({
-            "name": "SMS Triage",
-            "task": (
-                f"You are triaging {user_name}'s recent iMessages. "
-                "Use get_recent_messages to scan recent conversations. "
-                "Identify messages that may need a reply: customer questions, time-sensitive requests, commitments, unusual patterns. "
-                "Suppress: spam, marketing, casual banter, already-handled threads. "
-                "Report findings clearly: who sent it, what they want, recommended action. "
-                "If nothing needs attention, say 'All clear — nothing new needs a reply.'"
-            ),
-            "schedule": "daily@09:00",
-            "delivery": delivery,
-            "model": "",
-        })
-
-    return jobs
-
-
-def _create_cron_jobs(jobs: list) -> None:
-    try:
-        from koda_durable_agent.cron_runner import add_cron_job, load_cron_jobs
-        existing_names = {j.name.lower() for j in load_cron_jobs()}
-        for job in jobs:
-            if job["name"].lower() in existing_names:
-                _info(f"Cron job '{job['name']}' already exists — skipping.")
-                continue
-            sched = job["schedule"]
-            interval = 0
-            sched_str = None
-            if sched.startswith("daily@") or sched.startswith("weekly@"):
-                sched_str = sched
-            else:
-                interval = int(sched)
-            add_cron_job(
-                name=job["name"],
-                task=job["task"],
-                interval_minutes=interval,
-                model=job.get("model") or None,
-                delivery=job["delivery"],
-                schedule=sched_str,
-            )
-            _ok(f"Scheduled: {job['name']} ({sched}, delivery={job['delivery']})")
-    except Exception as e:
-        _info(f"Could not create cron jobs automatically: {e}")
-        _info("You can create them later by asking Koda to schedule them.")
 
 
 def run_setup() -> None:
@@ -279,15 +214,6 @@ def run_setup() -> None:
     else:
         _info(f"Soul.md already exists at {SOUL_FILE} — keeping it.")
 
-    # ── Default cron jobs ──────────────────────────────────────
-    _h("Setting up default automations...")
-    jobs = _setup_default_crons(user_name, has_telegram)
-    _create_cron_jobs(jobs)
-
-    if not has_telegram:
-        _info("Morning Brief will appear in chat (TUI) since Telegram isn't configured.")
-        _info("Add Telegram later to get it on your phone instead.")
-
     # ── Done ───────────────────────────────────────────────────
     _p()
     _p(f"{_BOLD}{'=' * 52}{_RESET}")
@@ -295,6 +221,9 @@ def run_setup() -> None:
     _p(f"{_BOLD}{'=' * 52}{_RESET}")
     _p()
     _p("  Run: koda")
+    _p()
+    _p("  Once inside, ask Koda:")
+    _p('  "What automations can I set up?"  — to browse built-in skill templates')
     _p()
     if not openrouter_key or (openrouter_key and openrouter_key.startswith("your_")):
         _p(f"  {_YELLOW}⚠  Don't forget to add your OpenRouter API key:{_RESET}")

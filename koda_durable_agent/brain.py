@@ -38,6 +38,9 @@ from koda_durable_agent.koda_tools import (
 from koda_durable_agent.koda_skill_tools import (
     list_koda_skills, create_koda_skill, delete_koda_skill,
 )
+from koda_durable_agent.koda_templates import (
+    list_koda_templates, install_koda_template,
+)
 from koda_durable_agent.koda_fs_tools import (
     read_file, list_directory, write_file, run_shell_command,
 )
@@ -145,6 +148,17 @@ def load_instructions() -> str:
         "When asked to schedule something, call create_koda_cron_job immediately."
     )
 
+    instructions.append("\n### BUILT-IN SKILL TEMPLATES:")
+    instructions.append(
+        "You have ready-made automations users can install:\n"
+        "  list_koda_templates()                          — show all available templates\n"
+        "  install_koda_template(template_id, delivery)  — install one as a cron job\n\n"
+        "When someone asks 'what can I automate?', 'what skills are available?', or anything similar, "
+        "call list_koda_templates() immediately and offer to install any of them. "
+        "Ask for their preferred delivery (telegram or chat) before installing. "
+        "Never auto-install without confirming delivery preference first."
+    )
+
     instructions.append("\n### CUSTOM SKILLS (SLASH COMMANDS):")
     instructions.append(
         "You can create your own slash commands:\n"
@@ -190,7 +204,9 @@ def get_tools() -> list:
         # Scheduler
         list_koda_cron_jobs, create_koda_cron_job,
         delete_koda_cron_job, run_koda_cron_job_now,
-        # Skills
+        # Built-in templates
+        list_koda_templates, install_koda_template,
+        # Custom skills
         list_koda_skills, create_koda_skill, delete_koda_skill,
         # Filesystem + shell
         read_file, list_directory, write_file, run_shell_command,
