@@ -10,6 +10,9 @@ class KodaObsidianExporter:
     def __init__(self, *args, **kwargs):
         pass
 
+    def sync(self, *args, **kwargs) -> dict:
+        return {}
+
     def sync_session(self, *args, **kwargs) -> str:
         return ""
 

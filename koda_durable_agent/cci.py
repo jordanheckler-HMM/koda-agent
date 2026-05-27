@@ -19,6 +19,12 @@ _TIERS = [
 
 
 class CCITracker:
+    DELTA_TELEGRAM_UP = 0.05
+    DELTA_TURN = 0.05
+    DELTA_TOOL = 0.02
+    DELTA_ERROR = -0.01
+    DELTA_AHA = 0.3
+    SOUL_VER = KODA_DIR / "soul_versions"
     def __init__(self):
         self._data = self._load()
 

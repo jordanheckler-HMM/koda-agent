@@ -1098,7 +1098,12 @@ class KodaTUISession:
         await self.close_agent()
 
     def _is_openrouter_model(self, model: str) -> bool:
-        return model.startswith("openrouter/")
+        if model.startswith("ollama/"):
+            return False
+        if self._is_gemini_model(model):
+            return False
+        # Everything else (openrouter/, openai/, anthropic/, bare model IDs) routes via OpenRouter
+        return True
 
     def _is_gemini_model(self, model: str) -> bool:
         n = normalize_model_name(model)
