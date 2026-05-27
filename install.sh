@@ -26,60 +26,54 @@ _py_version_ok() {
 
 PYTHON=""
 
-# Check common explicit python3.11+ names first
-for candidate in python3.13 python3.12 python3.11 python3 python; do
-    if command -v "$candidate" &>/dev/null && _py_version_ok "$candidate"; then
-        PYTHON=$(command -v "$candidate")
-        break
-    fi
-done
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # ── macOS: check for existing 3.11+, install via Homebrew if needed ──────
+    for candidate in python3.13 python3.12 python3.11 python3 python; do
+        if command -v "$candidate" &>/dev/null && _py_version_ok "$candidate"; then
+            PYTHON=$(command -v "$candidate")
+            break
+        fi
+    done
 
-if [ -z "$PYTHON" ]; then
-    echo "Python 3.11+ not found — installing it now..."
-    echo ""
-
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS — use Homebrew, installing it first if needed
+    if [ -z "$PYTHON" ]; then
+        echo "Python 3.11+ not found — installing via Homebrew..."
         if ! command -v brew &>/dev/null; then
-            echo "Installing Homebrew (the standard macOS package manager)..."
+            echo "Installing Homebrew first..."
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-            # Add Homebrew to PATH for this session (Apple Silicon vs Intel)
             if [ -f /opt/homebrew/bin/brew ]; then
                 eval "$(/opt/homebrew/bin/brew shellenv)"
             elif [ -f /usr/local/bin/brew ]; then
                 eval "$(/usr/local/bin/brew shellenv)"
             fi
         fi
-        echo "Installing Python 3.11..."
         brew install python@3.11
         PYTHON=$(brew --prefix python@3.11)/bin/python3.11
-    else
-        # Linux / WSL
-        echo "Installing Python 3.11 via apt (you may be asked for your password)..."
+    fi
+else
+    # ── Linux / WSL: always install python3.11 + venv explicitly ─────────────
+    # Python 3.12+ on Ubuntu often lacks ensurepip in apt. 3.11 is stable and
+    # fully supported. We install it explicitly rather than using whatever
+    # version happens to be on the system.
+    if ! command -v python3.11 &>/dev/null; then
+        echo "Installing Python 3.11 (you may be asked for your password)..."
         sudo apt-get update -qq
         sudo apt-get install -y python3.11 python3.11-venv curl
-        PYTHON=$(command -v python3.11)
+    else
+        # Already have 3.11 — make sure venv is there too
+        sudo apt-get install -y python3.11-venv 2>/dev/null || true
     fi
+    PYTHON=$(command -v python3.11)
+fi
 
-    if [ -z "$PYTHON" ] || ! _py_version_ok "$PYTHON"; then
-        echo ""
-        echo "ERROR: Could not install Python automatically."
-        echo "Please install Python 3.11 manually from https://python.org and run this script again."
-        exit 1
-    fi
+if [ -z "$PYTHON" ] || ! _py_version_ok "$PYTHON"; then
+    echo ""
+    echo "ERROR: Could not set up Python 3.11."
+    echo "Please install it manually: sudo apt install python3.11 python3.11-venv"
+    exit 1
 fi
 
 PY_VERSION=$("$PYTHON" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 echo "Python $PY_VERSION — OK"
-
-# ── 1b. Ensure venv + ensurepip are available (Linux/WSL only) ───────────────
-if [[ "$OSTYPE" != "darwin"* ]]; then
-    if ! "$PYTHON" -c "import ensurepip" &>/dev/null 2>&1; then
-        echo "Installing python${PY_VERSION}-venv (needed to create environments)..."
-        sudo apt-get install -y "python${PY_VERSION}-venv" 2>/dev/null || \
-        sudo apt-get install -y python3-venv 2>/dev/null || true
-    fi
-fi
 
 # ── 2. Create virtualenv at ~/.koda/venv ─────────────────────────────────────
 KODA_DIR="$HOME/.koda"
@@ -95,16 +89,23 @@ fi
 
 if [ ! -d "$VENV_DIR" ]; then
     echo "Setting up Koda environment..."
-    "$PYTHON" -m venv "$VENV_DIR"
+    "$PYTHON" -m venv "$VENV_DIR" 2>/dev/null || \
+        "$PYTHON" -m venv --without-pip "$VENV_DIR"
 else
     echo "Koda environment already exists — OK."
 fi
 
-# Verify pip is now present
+# If pip is still missing, bootstrap it manually (handles --without-pip fallback)
+if [ ! -f "$VENV_DIR/bin/pip" ]; then
+    echo "Bootstrapping pip..."
+    curl -sSL https://bootstrap.pypa.io/get-pip.py | "$VENV_DIR/bin/python3"
+fi
+
+# Final check
 if [ ! -f "$VENV_DIR/bin/pip" ]; then
     echo ""
-    echo "ERROR: Could not create a working Python environment."
-    echo "Try running manually: sudo apt install python${PY_VERSION}-venv"
+    echo "ERROR: Could not set up pip. Please report this at:"
+    echo "  https://github.com/jordanheckler-HMM/koda-agent/issues"
     exit 1
 fi
 
