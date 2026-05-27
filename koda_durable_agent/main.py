@@ -54,23 +54,54 @@ def render_banner() -> None:
 """)
 
 
+def _find_koda_repo() -> Path:
+    """Find the koda-agent repo directory via editable install metadata, falling back to __file__."""
+    import json
+    # Try importlib.metadata first — works correctly for editable installs
+    try:
+        import importlib.metadata
+        dist = importlib.metadata.distribution("koda-agent")
+        raw = dist.read_text("direct_url.json")
+        if raw:
+            data = json.loads(raw)
+            url = data.get("url", "")
+            if url.startswith("file://"):
+                candidate = Path(url[7:])
+                if (candidate / ".git").exists():
+                    return candidate
+    except Exception:
+        pass
+    # Fallback: two levels up from this file
+    return Path(__file__).resolve().parent.parent
+
+
 def run_update() -> None:
     """Pull latest from GitHub and reinstall the package."""
     import subprocess
 
-    # The repo root is always two levels up from this file
-    repo_dir = Path(__file__).resolve().parent.parent
-
+    repo_dir = _find_koda_repo()
     print(f"\n  Updating Koda from {repo_dir}...\n")
 
-    # Check it's actually a git repo
     if not (repo_dir / ".git").exists():
         print("  ✗  Not a git repo — can't auto-update.")
         print(f"     Re-run: bash {repo_dir}/install.sh")
         return
 
-    # Pull latest (explicit remote/branch so it works without tracking info)
-    result = subprocess.run(["git", "pull", "origin", "main"], cwd=repo_dir, capture_output=True, text=True)
+    # Check a remote named origin exists
+    result = subprocess.run(
+        ["git", "remote", "get-url", "origin"],
+        cwd=repo_dir, capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        print("  ✗  No git remote 'origin' found in this repo.")
+        print("     Open a new terminal tab and try again —")
+        print("     your shell may still be using an old alias.")
+        return
+
+    result = subprocess.run(
+        ["git", "pull", "origin", "main"],
+        cwd=repo_dir, capture_output=True, text=True,
+    )
     if result.returncode != 0:
         print(f"  ✗  git pull failed:\n{result.stderr.strip()}")
         return
@@ -82,7 +113,6 @@ def run_update() -> None:
 
     print(f"  {output}\n")
 
-    # Reinstall so any new deps are picked up
     venv_pip = Path.home() / ".koda" / "venv" / "bin" / "pip"
     pip = str(venv_pip) if venv_pip.exists() else "pip"
     result = subprocess.run(
