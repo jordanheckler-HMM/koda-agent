@@ -46,6 +46,12 @@ from koda_durable_agent.koda_fs_tools import (
 )
 from koda_durable_agent.github_tools import report_koda_issue
 from koda_durable_agent.leaderboard import submit_cci_score, view_leaderboard
+from koda_durable_agent.office_tools import (
+    read_word_document, write_word_document,
+    read_excel_file, write_excel_file, append_excel_rows,
+    read_pdf,
+)
+from koda_durable_agent.email_tools import triage_inbox, search_emails, read_email
 
 # ---------------------------------------------------------------------------
 # Config paths — portable, no hardcoded user paths
@@ -177,6 +183,33 @@ def load_instructions() -> str:
         "The prompt is what runs when the command is typed — be specific."
     )
 
+    instructions.append("\n### OFFICE FILES (Word, Excel, PDF):")
+    instructions.append(
+        "You can read and write Office documents and PDFs:\n"
+        "  read_word_document(path)                        — read a .docx file\n"
+        "  write_word_document(path, content, overwrite)   — create a .docx file\n"
+        "  read_excel_file(path, sheet, max_rows)          — read a .xlsx spreadsheet\n"
+        "  write_excel_file(path, rows, sheet, overwrite)  — create a .xlsx file\n"
+        "  append_excel_rows(path, rows, sheet)            — add rows to existing spreadsheet\n"
+        "  read_pdf(path, pages)                           — read a PDF\n\n"
+        "These work with any files on disk, including files synced from OneDrive, SharePoint, "
+        "Google Drive, or Dropbox — just use the local file path.\n"
+        "read_word_document, read_excel_file, and read_pdf are safe to call directly.\n"
+        "write_word_document and write_excel_file modify files — confirm with the user first."
+    )
+
+    instructions.append("\n### EMAIL:")
+    instructions.append(
+        "You can triage and search the user's email inbox via IMAP:\n"
+        "  triage_inbox(days, max_emails)     — scan recent inbox, surface what needs attention\n"
+        "  search_emails(query, max_results)  — search by sender, subject, or keyword\n"
+        "  read_email(subject_or_id)          — read the full body of a specific email\n\n"
+        "Works with Outlook/Office 365, Gmail, Yahoo, iCloud, and any IMAP provider.\n"
+        "Requires EMAIL_ADDRESS and EMAIL_PASSWORD in ~/.koda/.env.\n"
+        "These tools are read-only — Koda never sends email without a separate confirmed action.\n"
+        "When asked to triage or check email, call triage_inbox directly."
+    )
+
     instructions.append("\n### FILESYSTEM & SHELL:")
     instructions.append(
         "You have full local access:\n"
@@ -240,6 +273,12 @@ def get_tools() -> list:
         list_koda_skills, create_koda_skill, delete_koda_skill,
         # Filesystem + shell
         read_file, list_directory, write_file, run_shell_command,
+        # Office files
+        read_word_document, write_word_document,
+        read_excel_file, write_excel_file, append_excel_rows,
+        read_pdf,
+        # Email
+        triage_inbox, search_emails, read_email,
         # Feedback + leaderboard
         report_koda_issue,
         submit_cci_score, view_leaderboard,

@@ -121,6 +121,11 @@ if [ ! -f "$ENV_FILE" ]; then
 # Required: get a free key at https://openrouter.ai/keys
 OPENROUTER_API_KEY=
 
+# Optional: Email inbox triage (Outlook, Gmail, Yahoo, any IMAP)
+EMAIL_ADDRESS=
+EMAIL_PASSWORD=
+# EMAIL_IMAP_SERVER= (auto-detected for Outlook/Gmail/Yahoo/iCloud)
+
 # Optional: Telegram for phone notifications
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=

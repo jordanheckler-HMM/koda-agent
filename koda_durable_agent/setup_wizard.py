@@ -197,8 +197,38 @@ def run_setup() -> None:
         _ok("Apple Reminders, Notes, Calendar, Contacts access available")
         _info("These work automatically — no extra setup needed.")
 
+    # ── Email ──────────────────────────────────────────────────
+    _h("Step 4 — Email (optional)")
+    _info("Koda can triage your inbox, search emails, and surface what needs attention.")
+    _info("Works with Outlook, Office 365, Gmail, Yahoo, and any IMAP provider.")
+    _p()
+    existing_email = existing_env.get("EMAIL_ADDRESS", "")
+    if existing_email and not existing_email.startswith("your_"):
+        _ok(f"Email already configured ({existing_email})")
+        email_address = existing_email
+        email_password = existing_env.get("EMAIL_PASSWORD", "")
+        email_server = existing_env.get("EMAIL_IMAP_SERVER", "")
+    else:
+        setup_email = _ask("Set up email access now? (y/n)", "n").lower()
+        if setup_email in ("y", "yes"):
+            email_address = _ask("Your email address")
+            email_password = _ask_secret("Email password or app password")
+            _p()
+            _info("IMAP server is auto-detected for Outlook, Gmail, Yahoo, and iCloud.")
+            _info("For other providers, enter it manually (or leave blank to auto-detect).")
+            email_server = _ask("IMAP server (leave blank to auto-detect)", "")
+            if email_address and email_password:
+                _ok("Email configured.")
+            else:
+                email_address = email_password = email_server = ""
+                _info("Skipped.")
+        else:
+            email_address = email_password = email_server = ""
+            _info("Skipped. Add EMAIL_ADDRESS and EMAIL_PASSWORD to ~/.koda/.env later.")
+
+    # Renumber GitHub step
     # ── GitHub token ───────────────────────────────────────────
-    _h("Step 5 — GitHub feedback token (optional)")
+    _h("Step 5 — GitHub feedback token (optional, for Koda developers)")
     _info("This lets Koda file bug reports automatically when users complain.")
     _info("Get a free token at: https://github.com/settings/tokens")
     _info("Needs 'public_repo' scope only.")
@@ -230,6 +260,12 @@ def run_setup() -> None:
         env["TELEGRAM_BOT_TOKEN"] = telegram_token
     if telegram_chat:
         env["TELEGRAM_CHAT_ID"] = telegram_chat
+    if email_address:
+        env["EMAIL_ADDRESS"] = email_address
+    if email_password:
+        env["EMAIL_PASSWORD"] = email_password
+    if email_server:
+        env["EMAIL_IMAP_SERVER"] = email_server
     if github_token:
         env["GITHUB_TOKEN"] = github_token
 

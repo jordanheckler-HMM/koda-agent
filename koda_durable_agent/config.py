@@ -32,6 +32,11 @@ class Settings:
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
 
+    # Email (IMAP — works with Outlook, Gmail, Yahoo, etc.)
+    EMAIL_ADDRESS: str = os.getenv("EMAIL_ADDRESS", "")
+    EMAIL_PASSWORD: str = os.getenv("EMAIL_PASSWORD", "")
+    EMAIL_IMAP_SERVER: str = os.getenv("EMAIL_IMAP_SERVER", "")
+
     # GitHub (for filing user-reported issues)
     GITHUB_TOKEN: str = os.getenv("GITHUB_TOKEN", "")
 
