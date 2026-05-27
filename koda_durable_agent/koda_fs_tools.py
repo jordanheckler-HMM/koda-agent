@@ -1,7 +1,16 @@
 """Filesystem and shell tools for Koda — full local access."""
+import re
 import subprocess
 import os
 from pathlib import Path
+
+# AI CLI tools that cost money to invoke. Koda must not call these autonomously.
+# If a user explicitly asks Koda to run one of these, it should tell them to
+# run it themselves rather than calling it via shell.
+_AI_CLI_PATTERN = re.compile(
+    r"(?<![/\w])(claude|codex|anthropic|gemini|openai|copilot|cursor|aider|gpt4all|ollama run)\b",
+    re.IGNORECASE,
+)
 
 
 def read_file(path: str) -> str:
@@ -61,6 +70,15 @@ def run_shell_command(command: str) -> str:
     Args:
         command: Shell command to run (runs via bash -c).
     """
+    match = _AI_CLI_PATTERN.search(command)
+    if match:
+        tool = match.group(1).lower()
+        return (
+            f"Blocked: Koda does not call external AI tools automatically ({tool} detected). "
+            f"Running AI CLIs in the background can consume your API credits without warning. "
+            f"If you want to use {tool}, please run it yourself in a separate terminal."
+        )
+
     try:
         result = subprocess.run(
             command,
